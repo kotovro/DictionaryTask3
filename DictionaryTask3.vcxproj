@@ -127,7 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DictionaryTask3.cpp" />
+    <ClCompile Include="DictionaryTask3.h" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
