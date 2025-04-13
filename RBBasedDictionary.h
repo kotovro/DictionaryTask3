@@ -31,7 +31,7 @@ struct Entry
 };
 
 template <typename T, typename V>
-class RBBasedDicitonary
+class RBBasedDictionary
 {
 private:
     Entry<T, V>* root;
@@ -87,7 +87,7 @@ protected:
             parent = ptr->parent;
             grandparent = parent->parent;
             if (parent == grandparent->left) {
-                Entry<T>* uncle = grandparent->right;
+                Entry<T, V>* uncle = grandparent->right;
                 if (getColor(uncle) == RED) {
                     setColor(uncle, BLACK);
                     setColor(parent, BLACK);
@@ -106,7 +106,7 @@ protected:
                 }
             }
             else {
-                Entry<T>* uncle = grandparent->left;
+                Entry<T, V>* uncle = grandparent->left;
                 if (getColor(uncle) == RED) {
                     setColor(uncle, BLACK);
                     setColor(parent, BLACK);
@@ -127,112 +127,97 @@ protected:
         }
         setColor(root, BLACK);
     };
-    void fixDeleteRBTree(Entry<T, V>*& node)
-    {
-        if (node == nullptr)
-            return;
 
-        if (node == root) {
-            root = nullptr;
-            return;
-        }
+    void fixDeleteRBTree(Entry<T, V>* node) {
+        if (node == nullptr || node == root) return;
 
-        if (getColor(node) == RED || getColor(node->left) == RED || getColor(node->right) == RED) {
-            Entry<T, V>* child = node->left != nullptr ? node->left : node->right;
+        Entry<T, V>* sibling = nullptr;
+        Entry<T, V>* parent = node->parent;
 
-            if (node == node->parent->left) {
-                node->parent->left = child;
-                if (child != nullptr)
-                    child->parent = node->parent;
-                setColor(child, BLACK);
-                delete (node);
-            }
-            else {
-                node->parent->right = child;
-                if (child != nullptr)
-                    child->parent = node->parent;
-                setColor(child, BLACK);
-                delete (node);
-            }
-        }
-        else {
-            Entry<T, V>* sibling = nullptr;
-            Entry<T, V>* parent = nullptr;
-            Entry<T, V>* ptr = node;
-            setColor(ptr, DOUBLE_BLACK);
-            while (ptr != root && getColor(ptr) == DOUBLE_BLACK) {
-                parent = ptr->parent;
-                if (ptr == parent->left) {
-                    sibling = parent->right;
-                    if (getColor(sibling) == RED) {
-                        setColor(sibling, BLACK);
-                        setColor(parent, RED);
-                        rotateLeft(parent);
-                    }
-                    else {
-                        if (getColor(sibling->left) == BLACK && getColor(sibling->right) == BLACK) {
-                            setColor(sibling, RED);
-                            if (getColor(parent) == RED)
-                                setColor(parent, BLACK);
-                            else
-                                setColor(parent, DOUBLE_BLACK);
-                            ptr = parent;
-                        }
-                        else {
-                            if (getColor(sibling->right) == BLACK) {
-                                setColor(sibling->left, BLACK);
-                                setColor(sibling, RED);
-                                rotateRight(sibling);
-                                sibling = parent->right;
-                            }
-                            setColor(sibling, parent->color);
-                            setColor(parent, BLACK);
-                            setColor(sibling->right, BLACK);
-                            rotateLeft(parent);
-                            break;
-                        }
-                    }
+        while (node != root && getColor(node) == DOUBLE_BLACK) {
+            if (node == parent->left) {
+                sibling = parent->right;
+
+                // Case 1: Sibling is RED (convert to cases 2/3/4)
+                if (getColor(sibling) == RED) {
+                    setColor(sibling, BLACK);
+                    setColor(parent, RED);
+                    rotateLeft(parent);
+                    sibling = parent->right;  // New sibling after rotation
+                }
+
+                // Case 2: Sibling and both its children are BLACK
+                if (getColor(sibling->left) == BLACK && getColor(sibling->right) == BLACK) {
+                    setColor(sibling, RED);
+                    setColor(node, BLACK);  // Resolve double-black
+                    if (getColor(parent) == RED)
+                        setColor(parent, BLACK);
+                    else
+                        setColor(parent, DOUBLE_BLACK);
+                    node = parent;
+                    parent = node->parent;
                 }
                 else {
-                    sibling = parent->left;
-                    if (getColor(sibling) == RED) {
-                        setColor(sibling, BLACK);
-                        setColor(parent, RED);
-                        rotateRight(parent);
+                    // Case 3: Sibling's left child is RED, right is BLACK
+                    if (getColor(sibling->right) == BLACK) {
+                        setColor(sibling->left, BLACK);
+                        setColor(sibling, RED);
+                        rotateRight(sibling);
+                        sibling = parent->right;
                     }
-                    else {
-                        if (getColor(sibling->left) == BLACK && getColor(sibling->right) == BLACK) {
-                            setColor(sibling, RED);
-                            if (getColor(parent) == RED)
-                                setColor(parent, BLACK);
-                            else
-                                setColor(parent, DOUBLE_BLACK);
-                            ptr = parent;
-                        }
-                        else {
-                            if (getColor(sibling->left) == BLACK) {
-                                setColor(sibling->right, BLACK);
-                                setColor(sibling, RED);
-                                rotateLeft(sibling);
-                                sibling = parent->left;
-                            }
-                            setColor(sibling, parent->color);
-                            setColor(parent, BLACK);
-                            setColor(sibling->left, BLACK);
-                            rotateRight(parent);
-                            break;
-                        }
-                    }
+
+                    // Case 4: Sibling's right child is RED
+                    setColor(sibling, getColor(parent));
+                    setColor(parent, BLACK);
+                    setColor(sibling->right, BLACK);
+                    rotateLeft(parent);
+                    break;
                 }
             }
-            if (node == node->parent->left)
-                node->parent->left = nullptr;
-            else
-                node->parent->right = nullptr;
-            delete(node);
-            setColor(root, BLACK);
+            else {  // Symmetric cases (node is right child)
+                sibling = parent->left;
+
+                // Case 1: Sibling is RED
+                if (getColor(sibling) == RED) {
+                    setColor(sibling, BLACK);
+                    setColor(parent, RED);
+                    rotateRight(parent);
+                    sibling = parent->left;
+                }
+
+                // Case 2: Sibling and both children are BLACK
+                if (getColor(sibling->left) == BLACK && getColor(sibling->right) == BLACK) {
+                    setColor(sibling, RED);
+                    setColor(node, BLACK);
+                    if (getColor(parent) == RED)
+                        setColor(parent, BLACK);
+                    else
+                        setColor(parent, DOUBLE_BLACK);
+                    node = parent;
+                    parent = node->parent;
+                }
+                else {
+                    // Case 3: Sibling's right child is RED, left is BLACK
+                    if (getColor(sibling->left) == BLACK) {
+                        setColor(sibling->right, BLACK);
+                        setColor(sibling, RED);
+                        rotateLeft(sibling);
+                        sibling = parent->left;
+                    }
+
+                    // Case 4: Sibling's left child is RED
+                    setColor(sibling, getColor(parent));
+                    setColor(parent, BLACK);
+                    setColor(sibling->left, BLACK);
+                    rotateRight(parent);
+                    break;
+                }
+            }
         }
-    };
+
+        // Ensure root is always BLACK
+        setColor(root, BLACK);
+    }
 
     void inorderBST(Entry<T, V>*& ptr, int level)
     {
@@ -272,7 +257,7 @@ protected:
 
     Entry<T, V>* minValueNode(Entry<T, V>*& node)
     {
-        Entry<T>* ptr = node;
+        Entry<T, V>* ptr = node;
 
         while (ptr->left != nullptr)
             ptr = ptr->left;
@@ -312,24 +297,57 @@ protected:
         return root;
     };
     
-    Entry<T, V>* deleteBST(Entry<T, V>*& root, T key)
-    {
-        if(root == nullptr)
-            return root;
+    Entry<T, V>* deleteBST(Entry<T, V>*& root, T key) {
+        if (root == nullptr) return nullptr;
 
-        if (key < root->key)
+        // 1. Standard BST deletion
+        if (key < root->key) {
             return deleteBST(root->left, key);
-
-        if (key > root->key)
+        }
+        else if (key > root->key) {
             return deleteBST(root->right, key);
+        }
+        else {
+            // Node to delete found (root or otherwise)
+            Entry<T, V>* nodeToDelete = root;
 
-        if (root->left == nullptr || root->right == nullptr)
-            return root;
+            // Case 1: Node has 0 or 1 child
+            if (root->left == nullptr || root->right == nullptr) {
+                Entry<T, V>* temp = (root->left != nullptr) ? root->left : root->right;
 
-        Entry<T, V>* temp = minValueNode(root->right);
-        root->key = temp->key;
-        return deleteBST(root->right, temp->key);
-    };
+                // If root is being deleted, update the root pointer
+                if (temp != nullptr) temp->parent = root->parent;
+
+                // Handle root deletion case
+                if (root->parent == nullptr) {
+                    root = temp;  // New root
+                }
+                else {
+                    if (root == root->parent->left) {
+                        root->parent->left = temp;
+                    }
+                    else {
+                        root->parent->right = temp;
+                    }
+                }
+
+                // Rebalance if node was black
+                if (nodeToDelete->color == BLACK) {
+                    fixDeleteRBTree(temp);  // Rebalancing function for RBT
+                }
+
+                delete nodeToDelete;
+                return temp;
+            }
+            // Case 2: Node has 2 children
+            else {
+                Entry<T, V>* successor = minValueNode(root->right);
+                root->key = successor->key;
+                root->value = successor->value;
+                return deleteBST(root->right, successor->key);
+            }
+        }
+    }
     
     V findElement(Entry<T, V>*& root, T key) {
         if (root == nullptr) {
@@ -365,7 +383,7 @@ protected:
 
 public:
 
-    RedBlackTree()
+    RBBasedDictionary()
     {
         root = nullptr;
     };
@@ -382,6 +400,11 @@ public:
         Entry<T, V>* node = deleteBST(root, key);
         fixDeleteRBTree(node);
     };
+
+    V find(T key)
+    {
+        return findElement(root, key);
+    }
 
     void inorder()
     {

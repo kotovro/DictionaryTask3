@@ -21,6 +21,16 @@ int main()
 	//
 
 
-
 	//intTree->inorder();
+
+	RBBasedDictionary<int, int>* dictionary = new RBBasedDictionary<int, int>();
+	dictionary->insertValue(10, 120);
+	dictionary->insertValue(13, 30);
+	dictionary->insertValue(15, 40);
+	dictionary->inorder();
+	std::cout << "Search result for existing key: " << dictionary->find(13) << std::endl;
+	dictionary->deleteValue(10);
+	dictionary->inorder();
+
+
 }
