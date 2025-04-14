@@ -2,6 +2,9 @@
 
 #include <iostream>
 #include <utility>
+#include <type_traits>
+#include <vector>
+
 
 class ElementNotFoundException
 {
@@ -33,8 +36,9 @@ struct Entry
 template <typename T, typename V>
 class RBBasedDictionary
 {
-private:
+private:   
     Entry<T, V>* root;
+
 protected:
 
     void rotateLeft(Entry<T, V> *&ptr)
@@ -86,9 +90,11 @@ protected:
         while (ptr != root && getColor(ptr) == RED && getColor(ptr->parent) == RED) {
             parent = ptr->parent;
             grandparent = parent->parent;
-            if (parent == grandparent->left) {
+            if (parent == grandparent->left) 
+            {
                 Entry<T, V>* uncle = grandparent->right;
-                if (getColor(uncle) == RED) {
+                if (getColor(uncle) == RED) 
+                {
                     setColor(uncle, BLACK);
                     setColor(parent, BLACK);
                     setColor(grandparent, RED);
@@ -105,15 +111,18 @@ protected:
                     ptr = parent;
                 }
             }
-            else {
+            else 
+            {
                 Entry<T, V>* uncle = grandparent->left;
-                if (getColor(uncle) == RED) {
+                if (getColor(uncle) == RED) 
+                {
                     setColor(uncle, BLACK);
                     setColor(parent, BLACK);
                     setColor(grandparent, RED);
                     ptr = grandparent;
                 }
-                else {
+                else 
+                {
                     if (ptr == parent->left) {
                         rotateRight(parent);
                         ptr = parent;
@@ -128,18 +137,23 @@ protected:
         setColor(root, BLACK);
     };
 
-    void fixDeleteRBTree(Entry<T, V>* node) {
-        if (node == nullptr || node == root) return;
+    void fixDeleteRBTree(Entry<T, V>* node) 
+    {
+        if (node == nullptr || node == root) 
+            return;
 
         Entry<T, V>* sibling = nullptr;
         Entry<T, V>* parent = node->parent;
 
-        while (node != root && getColor(node) == DOUBLE_BLACK) {
-            if (node == parent->left) {
+        while (node != root && getColor(node) == DOUBLE_BLACK) 
+        {
+            if (node == parent->left) 
+            {
                 sibling = parent->right;
 
                 // Case 1: Sibling is RED (convert to cases 2/3/4)
-                if (getColor(sibling) == RED) {
+                if (getColor(sibling) == RED) 
+                {
                     setColor(sibling, BLACK);
                     setColor(parent, RED);
                     rotateLeft(parent);
@@ -147,7 +161,8 @@ protected:
                 }
 
                 // Case 2: Sibling and both its children are BLACK
-                if (getColor(sibling->left) == BLACK && getColor(sibling->right) == BLACK) {
+                if (getColor(sibling->left) == BLACK && getColor(sibling->right) == BLACK) 
+                {
                     setColor(sibling, RED);
                     setColor(node, BLACK);  // Resolve double-black
                     if (getColor(parent) == RED)
@@ -157,7 +172,8 @@ protected:
                     node = parent;
                     parent = node->parent;
                 }
-                else {
+                else 
+                {
                     // Case 3: Sibling's left child is RED, right is BLACK
                     if (getColor(sibling->right) == BLACK) {
                         setColor(sibling->left, BLACK);
@@ -174,11 +190,13 @@ protected:
                     break;
                 }
             }
-            else {  // Symmetric cases (node is right child)
+            else 
+            {  // Symmetric cases (node is right child)
                 sibling = parent->left;
 
                 // Case 1: Sibling is RED
-                if (getColor(sibling) == RED) {
+                if (getColor(sibling) == RED) 
+                {
                     setColor(sibling, BLACK);
                     setColor(parent, RED);
                     rotateRight(parent);
@@ -186,7 +204,8 @@ protected:
                 }
 
                 // Case 2: Sibling and both children are BLACK
-                if (getColor(sibling->left) == BLACK && getColor(sibling->right) == BLACK) {
+                if (getColor(sibling->left) == BLACK && getColor(sibling->right) == BLACK) 
+                {
                     setColor(sibling, RED);
                     setColor(node, BLACK);
                     if (getColor(parent) == RED)
@@ -196,7 +215,8 @@ protected:
                     node = parent;
                     parent = node->parent;
                 }
-                else {
+                else 
+                {
                     // Case 3: Sibling's right child is RED, left is BLACK
                     if (getColor(sibling->left) == BLACK) {
                         setColor(sibling->right, BLACK);
@@ -219,15 +239,23 @@ protected:
         setColor(root, BLACK);
     }
 
-    void inorderBST(Entry<T, V>*& ptr, int level)
+    void inorderBST(Entry<T, V>*& ptr, int level, std::vector<std::pair<T, V>>& keyValuePairs)
     {
         if (ptr == nullptr)
             return;
 
-        inorderBST(ptr->left, level+1);
-        std::cout << ptr->key << " " << ptr->color << " level:" << level << std::endl;
-        inorderBST(ptr->right, level+1);
-    };
+        // Traverse left subtree
+        inorderBST(ptr->left, level + 1, keyValuePairs);
+
+        // Store the key-value pair in the vector
+        keyValuePairs.push_back(std::make_pair(ptr->key, ptr->value));
+
+        // Output the current node details (for debugging or logging)
+        std::cout << "Key: " << ptr->key << " Value: " << ptr->value << " color: " << ptr->color << " level:" << level << std::endl;
+
+        // Traverse right subtree
+        inorderBST(ptr->right, level + 1, keyValuePairs);
+    }
 
     void preorderBST(Entry<T, V>*& ptr)
     {
@@ -288,8 +316,9 @@ protected:
             root->right = insertBST(root->right, ptr);
             root->right->parent = root;
         }
-        else
+        else // if we want to insert entry with existing key, we rewrite value there
         {
+            root->value = ptr->value;
             return ptr;
         }
 
@@ -298,7 +327,7 @@ protected:
     };
     
     Entry<T, V>* deleteBST(Entry<T, V>*& root, T key) {
-        if (root == nullptr) return nullptr;
+        if (root == nullptr) throw std::runtime_error("Key not found in tree");
 
         // 1. Standard BST deletion
         if (key < root->key) {
@@ -351,8 +380,7 @@ protected:
     
     V findElement(Entry<T, V>*& root, T key) {
         if (root == nullptr) {
-           
-            return V();
+           throw std::runtime_error("Key not found in tree");
         }
 
         if (key < root->key) 
@@ -406,9 +434,11 @@ public:
         return findElement(root, key);
     }
 
-    void inorder()
+    std::vector<std::pair<T, V>>* inorder()
     {
-        inorderBST(root, 0);
+        std::vector<std::pair<T, V>>* keyValuePairs = new std::vector<std::pair<T, V>>();
+        inorderBST(root, 0, *keyValuePairs);
+        return keyValuePairs;
     };
 
     void preorder()

@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35806.99 d17.13
+VisualStudioVersion = 17.13.35806.99
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DictionaryTask3", "DictionaryTask3.vcxproj", "{8A18FE4A-1B7F-4769-B320-DF9D3E156CE6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RBBasedDicitionaryTests", "RBBasedDicitionary\RBBasedDicitionary.vcxproj", "{6731362C-160F-22BD-1486-0B7BE4F456ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,14 @@ Global
 		{8A18FE4A-1B7F-4769-B320-DF9D3E156CE6}.Release|x64.Build.0 = Release|x64
 		{8A18FE4A-1B7F-4769-B320-DF9D3E156CE6}.Release|x86.ActiveCfg = Release|Win32
 		{8A18FE4A-1B7F-4769-B320-DF9D3E156CE6}.Release|x86.Build.0 = Release|Win32
+		{6731362C-160F-22BD-1486-0B7BE4F456ED}.Debug|x64.ActiveCfg = Debug|x64
+		{6731362C-160F-22BD-1486-0B7BE4F456ED}.Debug|x64.Build.0 = Debug|x64
+		{6731362C-160F-22BD-1486-0B7BE4F456ED}.Debug|x86.ActiveCfg = Debug|Win32
+		{6731362C-160F-22BD-1486-0B7BE4F456ED}.Debug|x86.Build.0 = Debug|Win32
+		{6731362C-160F-22BD-1486-0B7BE4F456ED}.Release|x64.ActiveCfg = Release|x64
+		{6731362C-160F-22BD-1486-0B7BE4F456ED}.Release|x64.Build.0 = Release|x64
+		{6731362C-160F-22BD-1486-0B7BE4F456ED}.Release|x86.ActiveCfg = Release|Win32
+		{6731362C-160F-22BD-1486-0B7BE4F456ED}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
